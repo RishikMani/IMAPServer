@@ -641,7 +641,7 @@ class ImapParse:
                         print("There are no new mails in " + node.name +
                               " to be synced.")
                 return
-        except ex:
+        except Exception as ex:
             print("The following error happened in parse_server: \n")
             print(ex)
 
@@ -916,7 +916,7 @@ class ImapParse:
                 self.get_timestamp_range(child.timestamp.year)
 
                 recent_mail = False
-        except ex:
+        except Exception as ex:
             print("An exception occurred in get_mail.")
             print(ex)
 
@@ -1324,7 +1324,7 @@ class H2Tree:
 
                 # Once a level has been completely processed, move a level up
                 depth = depth - 1
-        except ex:
+        except Exception as ex:
             print("An error happened in getsizeofdirectory method.\n")
             print(ex)
 
