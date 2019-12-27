@@ -10,6 +10,7 @@ import pickle
 import sys
 import datetime
 import gc
+import argparse
 from shutil import copyfile
 from pyqtgraph.Qt import QtCore, QtGui
 from numpy import array, ones, linspace, conjugate
@@ -27,13 +28,16 @@ from PyQt5.QtCore import Qt
 columns = ["Index", "Subject", "From", "To", "Date", "Attachment", "Mail_Path",
            "Mail_Size"]
 
-# user = "thermann"  # username
-user = "rmani"  # username
+parser = argparse.ArgumentParser()
+parser.add_argument("--username", type=str, default=None)
+
+args = parser.parse_args()
+user = args.username
+
 imap_server_name = "imap.techfak.uni-bielefeld.de"
 
 # path of the csv file containing the panda dataset. It contains the details
 # of the emails.
-# dataset_path = r"D:\Bielefeld\Individual Project\DataFrame.csv"
 data_path = r"./data"
 
 try:
@@ -41,12 +45,11 @@ try:
 except:
     print('directory {} already exists'.format(data_path))
 
-dataset_path = data_path + "/DataFrame.csv"
+dataset_path = data_path + "/mails.csv"
 
 # path of the pickle dataset. It contains the details of the nodes in the H2
 # graph.
-# pickle_dataset_path = r"D:\Bielefeld\Individual Project\TreeDataFrame.pkl"
-pickle_dataset_path = data_path + "/TreeDataFrame.pkl"
+pickle_dataset_path = data_path + "/mails.pkl"
 
 
 class Graph(pg.GraphItem):
@@ -196,7 +199,7 @@ class Node:
         
         self.number = Node.count  # the index of the node created
         self.isMail = False  # to check if the node is an Email or a directory
-        self.mailID = 0  # index number of the mail in DataFrame.csv
+        self.mailID = 0  # index number of the mail in mails.csv
         
         # to hold the size of all mails directly under one directory
         self.mailSize = 0.0
@@ -1534,8 +1537,8 @@ if __name__ == "__main__":
                     not os.path.isfile(pickle_dataset_path):
                 os.remove(dataset_path)
                                 
-                print("While TreeDataFrame.pkl file was not created, removing "
-                      "the file DataFrame.csv, as it would cause issues with "
+                print("File mails.pkl could not be created, removing "
+                      "the file mails.csv, as it would cause issues with "
                       "subsequent runs.\n")
                 
                 print("The program terminated abnormally. Please fix any "
@@ -1552,13 +1555,10 @@ if __name__ == "__main__":
     
     else:
         original_dataframe = dataset_path
-        # copied_dataframe = r"D:\Bielefeld\Individual Project\DataFrame_copy.csv"
         copied_dataframe = data_path + "/" + dataset_path.split('.')[0] + "_copy.csv"   # TH bug fix
         copyfile(original_dataframe, copied_dataframe)
         
         original_pickle = pickle_dataset_path
-        # copied_pickle = \
-        #     r"D:\Bielefeld\Individual Project\TreeDataFrame_copy.pkl"
         copied_pickle = data_path + "/" + original_pickle.split('.')[0] + "_copy.pkl"   #  TH bug fix
         copyfile(original_pickle, copied_pickle)
 
@@ -1566,11 +1566,11 @@ if __name__ == "__main__":
         # tries to synchronize an error occurs. This error could be due to
         # issues in the script, a wrong action trying to be executed on the
         # server, etc. Due to any such issue, the script may/may not update
-        # partial details in the DataFrame.csv file and exit. This causes
-        # synchronization issues with the TreeDataFrame.pkl file.
-        # In such cases, the script replaces the newly updated DataFrame.csv
+        # partial details in the mails.csv file and exit. This causes
+        # synchronization issues with the mails.pkl file.
+        # In such cases, the script replaces the newly updated mails.csv
         # file with the last correct version of itself. Similarly, to ensure
-        # that TreeDataFrame.pkl is also consistent, it is also replaced by the
+        # that mails.pkl is also consistent, it is also replaced by the
         # last correct version of itself.
         try:
             imap_parse.parse_server(True)
@@ -1614,7 +1614,7 @@ if __name__ == "__main__":
 
     rs = ones(max(0, 7)) * .5
     phi_0s = ones(max(0, 7)) * 2 * pi / 9.0
-    phi_0s[0:7] = [2 * pi / 3, 1 * pi / 3, .9 * pi / 3, pi / 5, pi / 3, pi / 3,
+    phi_0s[0:7] = [2 * pi / 3, pi / 4, .9 * pi / 3, pi / 5, pi / 3, pi / 3,
                    pi / 3]
     rs[0:7] = [.3, .5, .4, .5, .3, .3, .3]
 
