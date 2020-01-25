@@ -519,12 +519,6 @@ class ImapParse:
                 # If you do not want to process any particular directory for any
                 # reason, then remove them from the root_directories list.
                 # self.root_directories.remove('Calendar')
-                # self.root_directories.remove('Contacts')
-                # self.root_directories.remove('Journal')
-                # self.root_directories.remove('Notes')
-                # self.root_directories.remove('RSS Subscriptions')
-                # self.root_directories.remove('Sync Issues')
-                # self.root_directories.remove('Tasks')
 
                 # The approach is to start from the root node directories and process
                 # one level of directory at a time.
@@ -1235,9 +1229,17 @@ class H2Tree:
 
         if not self.reposition:
             # get the position of the children of the current node
+            """
             pos_children = \
                 self.rs[node.depth] * np.exp(1j * linspace(
                     -self.phi_0s[node.depth],
+                    self.phi_0s[node.depth],
+                    len(node.children)
+                ))
+            """
+            pos_children = \
+                self.rs[node.depth] * np.exp(1j * linspace(
+                    0,
                     self.phi_0s[node.depth],
                     len(node.children)
                 ))
@@ -1614,8 +1616,9 @@ if __name__ == "__main__":
 
     rs = ones(max(0, 7)) * .5
     phi_0s = ones(max(0, 7)) * 2 * pi / 9.0
-    phi_0s[0:7] = [2 * pi / 3, pi / 4, .9 * pi / 3, pi / 5, pi / 3, pi / 3,
-                   pi / 3]
+    root_angle = 2 * pi / len(root.children)
+    phi_0s[0:7] = [root_angle, root_angle /2, root_angle /3, root_angle / 4,
+                   root_angle / 5, root_angle / 6, root_angle / 7]
     rs[0:7] = [.3, .5, .4, .5, .3, .3, .3]
 
     # Create an instance of the H2tree class. This object would be used to
