@@ -231,10 +231,10 @@ class Q_Slider(QtGui.QSlider):
         QtGui.QSlider.mousePressEvent(self, event)
         opt = QtGui.QStyleOptionSlider()
         self.initStyleOption(opt)
-        gr = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, 
-                       QtGui.QStyle.SC_SliderGroove, self)
-        sr = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, 
-                       QtGui.QStyle.SC_SliderHandle, self)
+        gr = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt,
+                                         QtGui.QStyle.SC_SliderGroove, self)
+        sr = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt,
+                                         QtGui.QStyle.SC_SliderHandle, self)
         if self.orientation() == QtCore.Qt.Horizontal:
             pos = event.pos().x()
             sliderLength = sr.width()
@@ -492,24 +492,27 @@ class ImapParse:
 
         try:
             self.sync = sync
-            child = None  # holds the list of all children of the root directories
+
+            # holds the list of all children of the root directories
+            child = None
             self.svr.select("inbox", readonly=False)
 
-            # If the call is not for synchronization, then fetch details from the
-            # server and add children to the root node.
+            # If the call is not for synchronization, then fetch details from
+            # the server and add children to the root node.
             if not self.sync:
                 # lists all the directories present on the server
                 test, directories = self.svr.list('""', "*")
 
                 for mbox in directories:
                     # get the name of the directories
-                    flags, separator, name = self.parse_mailbox(bytes.decode(mbox))
+                    flags, separator, name = \
+                        self.parse_mailbox(bytes.decode(mbox))
 
                     # To recursively parse through the server we only need
                     # directories directly under '/'.
                     # e.g INBOX, Sent, Deleted Items are directories immediately
                     # under '/' but INBOX/ISYProject
-                    # e.g. Folder1/Subdirectory/, here we only need to store Folder1
+                    # e.g. Folder1/Subdirectory/, we only need to store Folder1
                     # for recursive parsing.
                     if len(name.split('/')) > 1:
                         continue
@@ -520,12 +523,12 @@ class ImapParse:
                 # reason, then remove them from the root_directories list.
                 # self.root_directories.remove('Calendar')
 
-                # The approach is to start from the root node directories and process
-                # one level of directory at a time.
-                # Starting from the root nodes, we will first create nodes for root
-                # directories. e.g. INBOX, Sent, etc.
-                # For every directory in the 'root_directories', add a new node and
-                # set 'root' as its parent.
+                # The approach is to start from the root node directories and
+                # process one level of directory at a time.
+                # Starting from the root nodes, we will first create nodes for
+                # root directories. e.g. INBOX, Sent, etc.
+                # For every directory in the 'root_directories', add a new node
+                # and set 'root' as its parent.
                 for directory in self.root_directories:
                     # adds a new node to the H2 tree graph
                     child, self.max_depth = self.imap_tree.grow(self.root,
@@ -563,14 +566,14 @@ class ImapParse:
                 for node in content:
                     if self.max_depth < node.depth:
                         # store the maximum depth of the tree.
-                        # his value would be used further while rendering the stored
-                        # tree in the form of pickle dataset.
+                        # this value would be used further while rendering the
+                        # stored tree in the form of pickle dataset.
                         self.max_depth = node.depth
 
-                    # Fetch one node at a time from the pickle dataset and store it
-                    # in a dictionary.
-                    # This dictionary would further be used to iterate through the
-                    # nodes to render the tree saved in memory.
+                    # Fetch one node at a time from the pickle dataset and store
+                    # it in a dictionary.
+                    # This dictionary would further be used to iterate through
+                    # the nodes to render the tree saved in memory.
                     self.node_dict[node.name] = node
 
                     self.pickle_dataframe_list.append(node)
@@ -593,10 +596,9 @@ class ImapParse:
 
                         # Further, there are some more directories, e.g.
                         # Folder1/ChildFolder1/...,
-                        # which are not root directories. These subdirectories also
-                        # needed to be checked
-                        # for any recent changes on the server during the
-                        # synchronization call.
+                        # which are not root directories. These subdirectories
+                        # also needed to be checked for any recent changes on
+                        # the server during the synchronization call.
                         if not node.isMail and node not in self.root_directories:
                             not_root_directories.append(node)
 
@@ -605,7 +607,8 @@ class ImapParse:
                     if node.timestamp is not None:
                         self.get_timestamp_range(node.timestamp.year)
 
-                self.imap_tree = ImapTree(self.nodeText, self.pickle_dataframe_list,
+                self.imap_tree = ImapTree(self.nodeText,
+                                          self.pickle_dataframe_list,
                                           adjacency_list)
 
                 # list containing all the directories on the IMAP server
@@ -619,7 +622,7 @@ class ImapParse:
                     date = self.get_latest_timestamp(node)
 
                     if date == "No mail exists":
-                        print("No mail exists in the directory " + node.name + ".")
+                        print("No mails in the directory " + node.name + ".")
                         continue
                     else:
                         print("The timestamp of " + node.name + " is " + date + ".")
@@ -628,8 +631,9 @@ class ImapParse:
                     date = self.get_converted_timestamp(date)
 
                     # Convert the date from the timestamp to an integer and then
-                    # compare. If the timestamp is bigger than the one stored in the
-                    # pickle, it implies new mail has arrived in the directory.
+                    # compare. If the timestamp is bigger than the one stored in
+                    # the pickle, it implies new mail has arrived in the
+                    # directory.
                     if date > node.timestamp:
                         print("New mails found in " + node.name + " since last \
                               login.")
@@ -811,7 +815,7 @@ class ImapParse:
         """
 
         try:
-            # flag to check whether the mail being referred to is the latest or not
+            # flag to check whether the mail is the latest or not
             recent_mail = True
             mails_processed = 0
 
@@ -821,7 +825,8 @@ class ImapParse:
             # 'Index'. The new index thus would be the returned value of the
             # Index + 1.
             if self.sync:
-                pd_dataframe = pd.read_csv(self.dataset_path, error_bad_lines=False,
+                pd_dataframe = pd.read_csv(self.dataset_path,
+                                           error_bad_lines=False,
                                            encoding="latin-1")
                 self.index = max(pd_dataframe["Index"].values) + 1
                 del pd_dataframe
@@ -833,8 +838,8 @@ class ImapParse:
                 # get the content of the email
                 resp, lst = self.svr.fetch(num, "(RFC822)")
 
-                # Check if the response to fetch command was successful or not, if
-                # not raise exception and abort
+                # Check if the response to fetch command was successful or not,
+                # if not raise exception and abort
                 if resp != "OK":
                     raise Exception("Bad response: %s %s" % (resp, lst))
 
@@ -867,19 +872,18 @@ class ImapParse:
                 # If the file does not exist, then create the new file,
                 # else append the panda dataframe to the CSV file.
                 if not os.path.isfile(self.dataset_path):
-                    df.to_csv(path_or_buf=self.dataset_path, sep=',', header=True,
-                              index=False)
+                    df.to_csv(path_or_buf=self.dataset_path, sep=',',
+                              header=True, index=False)
                 else:
                     with open(self.dataset_path, 'a', encoding="utf-8") as f:
                         df.to_csv(f, header=False, index=False)
 
-                self.index = self.index + 1  # index of the panda dataframe items
+                self.index = self.index + 1  # index for the panda dataframe
 
                 # for every mail downloaded add a new node to the tree graph
-                child, self.max_depth = self.imap_tree.grow(node,
-                                                            email_message["Date"],
-                                                            True,
-                                                            self.sync)
+                child, self.max_depth = \
+                    self.imap_tree.grow(node, email_message["Date"], True,
+                                        self.sync)
 
                 # for mails set the node label as the date when the mail was
                 # received
@@ -898,15 +902,15 @@ class ImapParse:
                 elif mails_processed == len(data[0].split()) and self.sync:
                     # During synchronization mails cannot be sorted out in
                     # descending order of date.
-                    # Hence, the last mail in the list would be the latest email.
-                    # So the latest timestamp of the node should be the timestamp of
-                    # the latest email as well.
-                    # mails_processed is a counter of the number of mails that have
-                    # been processed in a directory.
-                    # e.g. if we have 10 mails in the directory, then the mail at
-                    # position 10 would have the latest timestamp
-                    # So when the counter turns 10 we would know we have reached the
-                    # latest mail, and thus assign timestamp.
+                    # Hence, the last mail in the list would be the latest
+                    # email. So the latest timestamp of the node should be
+                    # the timestamp of the latest email as well.
+                    # mails_processed is a counter of the number of mails that
+                    # have been processed in a directory.
+                    # e.g. if we have 10 mails in the directory, then the mail
+                    # at position 10 would have the latest timestamp
+                    # So when the counter turns 10 we would know we have reached
+                    # the latest mail, and thus assign timestamp.
                     node.timestamp = \
                         self.get_converted_timestamp(email_message["Date"])
 
@@ -993,7 +997,7 @@ class ImapParse:
         # convert the date string into an integer, so that Date operations can
         # be performed on it.
         timestamp = timestamp[0:2] + self.month_dict[timestamp[2:5]] + \
-        timestamp[5:]
+                    timestamp[5:]
 
         # Convert the timestamp string obtained from the server to a DatTime
         # format.
@@ -1036,8 +1040,8 @@ class PickleDataset:
     """
     A class that contains methods to load and dump pickle dataset
     """
-
-    def get_pickle_dataset(self):
+    @staticmethod
+    def get_pickle_dataset():
         """
         Loads the pickle dataset from the file system
 
@@ -1048,7 +1052,8 @@ class PickleDataset:
             file.close()
         return content
 
-    def dump_pickle_dataset(self, dpd_pickle_dataframe):
+    @staticmethod
+    def dump_pickle_dataset(dpd_pickle_dataframe):
         """
         A method to dump the pickle dataset
 
@@ -1309,13 +1314,14 @@ class H2Tree:
             depth = self.max_depth
 
             # For every node (mail or directory) at a particular level,
-            # update the size of the parent node a level above, as the sum of the
-            # size of the node at the current depth
+            # update the size of the parent node a level above, as the sum of
+            # the size of the node at the current depth
             while depth > 0:
                 for node in self.pickle_dataset:
                     if node.depth == depth:
                         # increment the Email size under the parent node
-                        node.parent.mailSize = node.parent.mailSize + node.mailSize
+                        node.parent.mailSize = node.parent.mailSize + \
+                                               node.mailSize
                         node.mailSize = node.mailSize
 
                         # increment the number of mails under parent node
@@ -1557,11 +1563,13 @@ if __name__ == "__main__":
     
     else:
         original_dataframe = dataset_path
-        copied_dataframe = data_path + "/" + dataset_path.split('.')[0] + "_copy.csv"   # TH bug fix
+        copied_dataframe = data_path + "/" + dataset_path.split('.')[0] + \
+                           "_copy.csv"
         copyfile(original_dataframe, copied_dataframe)
         
         original_pickle = pickle_dataset_path
-        copied_pickle = data_path + "/" + original_pickle.split('.')[0] + "_copy.pkl"   #  TH bug fix
+        copied_pickle = data_path + "/" + original_pickle.split('.')[0] + \
+                        "_copy.pkl"
         copyfile(original_pickle, copied_pickle)
 
         # In certain cases, when the script connects to the IMAP server and
@@ -1617,7 +1625,7 @@ if __name__ == "__main__":
     rs = ones(max(0, 7)) * .5
     phi_0s = ones(max(0, 7)) * 2 * pi / 9.0
     root_angle = 2 * pi / len(root.children)
-    phi_0s[0:7] = [root_angle, root_angle /2, root_angle /3, root_angle / 4,
+    phi_0s[0:7] = [2 * pi, root_angle / 2, root_angle / 3, root_angle / 4,
                    root_angle / 5, root_angle / 6, root_angle / 7]
     rs[0:7] = [.3, .5, .4, .5, .3, .3, .3]
 
